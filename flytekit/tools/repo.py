@@ -274,11 +274,13 @@ def register(
         else:
             og_id = cp_entity.template.id
         secho(og_id, "")
+        print("og_id:\t", og_id)
         try:
             if not dry_run:
                 i = remote.raw_register(
                     cp_entity, serialization_settings, version=version, create_default_launchplan=False
                 )
+                print("identifier:\t", i)
                 secho(i)
                 if is_lp and activate_launchplans:
                     secho(og_id, "", op="Activation")
