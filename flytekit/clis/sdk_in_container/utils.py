@@ -108,8 +108,6 @@ def pretty_print_exception(e: Exception):
         click.secho(f"Failed with Exception Code: {e._ERROR_CODE}", fg="red")  # noqa
         if isinstance(e, FlyteInvalidInputException):
             click.secho("Request rejected by the API, due to Invalid input.", fg="red")
-            click.secho(f"\tInput Request: {MessageToJson(e.request)}", dim=True)
-
         cause = e.__cause__
         if cause:
             if isinstance(cause, grpc.RpcError):
