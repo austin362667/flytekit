@@ -73,7 +73,6 @@ def create_envd_config(image_spec: ImageSpec) -> str:
     if image_spec.env:
         env.update(image_spec.env)
     pip_index = "https://pypi.org/simple" if image_spec.pip_index is None else image_spec.pip_index
-
     envd_config = f"""# syntax=v1
 
 def build():
@@ -87,6 +86,13 @@ def build():
     ctx = context_manager.FlyteContextManager.current_context()
     cfg_path = ctx.file_access.get_random_local_path("build.envd")
     pathlib.Path(cfg_path).parent.mkdir(parents=True, exist_ok=True)
+
+    if image_spec.files:
+        for fd in image_spec.files:
+            fb = os.path.basename(fd)
+            file_path = f"{pathlib.Path(cfg_path).parent}{os.sep}{fb}"
+            shutil.copyfile(f"{fd}", file_path)
+        envd_config += '    io.copy(source="./", target="/root")'
 
     if conda_packages:
         envd_config += "    install.conda(use_mamba=True)\n"

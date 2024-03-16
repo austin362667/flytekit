@@ -51,6 +51,7 @@ class ImageSpec:
     builder: Optional[str] = None
     source_root: Optional[str] = None
     env: Optional[typing.Dict[str, str]] = None
+    files: Optional[List[str]] = None
     registry: Optional[str] = None
     packages: Optional[List[str]] = None
     conda_packages: Optional[List[str]] = None
