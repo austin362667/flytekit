@@ -303,5 +303,5 @@ async def register(
     loop = asyncio.get_event_loop()
     for cp_entity in registrable_entities:
         tasks.append(loop.run_in_executor(None, functools.partial(_raw_register, cp_entity)))
-    res = await asyncio.gather(*tasks)
+    await asyncio.gather(*tasks)
     click.secho(f"Successfully registered {len(registrable_entities)} entities", fg="green")
