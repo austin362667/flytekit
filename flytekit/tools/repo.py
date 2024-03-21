@@ -208,7 +208,7 @@ def secho(i: Identifier, state: str = "success", reason: str = None, op: str = "
     )
 
 
-async def register(
+def register(
     project: str,
     domain: str,
     image_config: ImageConfig,
@@ -271,7 +271,7 @@ async def register(
         click.secho("No Flyte entities were detected. Aborting!", fg="red")
         return
 
-    def _raw_register(cp_entity):
+    def _raw_register(cp_entity: FlyteControlPlaneEntity):
         is_lp = False
         if isinstance(cp_entity, launch_plan.LaunchPlan):
             og_id = cp_entity.id
@@ -299,13 +299,16 @@ async def register(
         except RegistrationSkipped:
             secho(og_id, "failed")
 
-    loop = asyncio.get_event_loop()
+    async def _register(entities: typing.List[FlyteControlPlaneEntity]):
+        loop = asyncio.get_event_loop()
+        tasks = []
+        for entity in entities:
+            tasks.append(loop.run_in_executor(None, functools.partial(_raw_register, entity)))
+        await asyncio.gather(*tasks)
+        return
 
     for type_ in FlyteControlPlaneEntity.__args__:
-        tasks = []
-        for cp_entity in list(filter(lambda x: isinstance(x, type_), registrable_entities)):
-            t = loop.run_in_executor(None, functools.partial(_raw_register, cp_entity))
-            tasks.append(t)
-        await asyncio.gather(*tasks)
+        cp_entities = list(filter(lambda x: isinstance(x, type_), registrable_entities))
+        asyncio.run(_register(cp_entities))
 
     click.secho(f"Successfully registered {len(registrable_entities)} entities", fg="green")
